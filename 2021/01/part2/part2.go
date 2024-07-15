@@ -10,7 +10,7 @@ import (
 
 func main() {
 	// Open the file
-	file, err := os.Open("data.txt")
+	file, err := os.Open("../data.txt")
 	if err != nil {
 		log.Fatal(err)
 	}

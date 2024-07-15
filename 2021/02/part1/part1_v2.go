@@ -11,15 +11,16 @@ import (
 
 func main() {
 	// Open the file
-	file, err := os.Open("data.txt")
+	file, err := os.Open("../data.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer file.Close() // Ensure the file is closed when the function exits
-
+	d := 0
+	h := 0
 	// Initialize the hash maps
-	directions := make(map[string]int)
-	forwards := make(map[string]int)
+	//directions := make(map[string]int)
+	//forwards := make(map[string]int)
 
 	// Create a new scanner for the file
 	scanner := bufio.NewScanner(file)
@@ -42,31 +43,25 @@ func main() {
 			log.Fatal(err) // Handle the error if the conversion fails
 		}
 
+		//d : = 0
 		// Update the hash maps based on the command
 		switch command {
 		case "forward":
-			forwards["forward"] += value
+			h += value
 		case "up":
-			directions["up"] += value
+			d -= value
 		case "down":
-			directions["down"] += value
+			d += value
 		default:
 			log.Fatalf("Unknown command: %s", command)
 		}
+
 	}
 
-	// Check for errors during scanning
 	if err := scanner.Err(); err != nil {
 		log.Fatal(err)
 	}
 
-	// Calculate the net up-down value
-	netUpDown := directions["down"] - directions["up"]
-
-	// Get the forward value
-	forwardValue := forwards["forward"]
-
-	// Print the result of both hash maps multiplied by the end values
-	result := netUpDown * forwardValue
+	result := d * h
 	fmt.Println(result)
 }
