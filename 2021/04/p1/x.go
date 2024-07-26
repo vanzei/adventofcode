@@ -2,6 +2,14 @@
 
 package main
 
+import (
+	"bufio"
+	"fmt"
+	"os"
+	"strconv"
+	"strings"
+)
+
 type Board struct {
 	numbers [5][5]int
 	marked  [5][5]bool
@@ -57,4 +65,67 @@ func (b *Board) score(lastNumber int) int {
 		}
 	}
 	return sum * lastNumber
+}
+
+func parseInput(scanner *bufio.Scanner) ([]int, []Board) {
+	scanner.Scan()
+	numStrs := strings.Split(scanner.Text(), ",")
+	numbers := make([]int, len(numStrs))
+	for i, numStr := range numStrs {
+		numbers[i], _ = strconv.Atoi(numStr)
+	}
+
+	var boards []Board
+	var currentBoard Board
+	rowIndex := 0
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		if line == "" {
+			if rowIndex == 5 {
+				boards = append(boards, currentBoard)
+				currentBoard = Board{}
+				rowIndex = 0
+			}
+			continue
+		}
+
+		nums := strings.Fields(line)
+		for j, num := range nums {
+			currentBoard.numbers[rowIndex][j], _ = strconv.Atoi(num)
+		}
+		rowIndex++
+
+		if rowIndex == 5 {
+			boards = append(boards, currentBoard)
+			currentBoard = Board{}
+			rowIndex = 0
+		}
+	}
+	return numbers, boards
+}
+
+func main() {
+	file, err := os.Open("../data.txt")
+	if err != nil {
+		fmt.Println("Error opening input file:", err)
+		return
+
+	}
+	defer file.Close()
+	scanner := bufio.NewScanner(file)
+
+	numbers, boards := parseInput(scanner)
+
+	for _, number := range numbers {
+		for i := range boards {
+			boards[i].mark(number)
+			if boards[i].hasWon() {
+				fmt.Println(boards[i].score(number))
+				return
+			}
+
+		}
+	}
+
 }
