@@ -1,5 +1,3 @@
-// Manually doing
-
 package main
 
 import (
@@ -13,6 +11,7 @@ import (
 type Board struct {
 	numbers [5][5]int
 	marked  [5][5]bool
+	won     bool
 }
 
 func (b *Board) mark(number int) {
@@ -26,7 +25,7 @@ func (b *Board) mark(number int) {
 }
 
 func (b *Board) hasWon() bool {
-	//check rows
+	// Check rows
 	for i := 0; i < 5; i++ {
 		win := true
 		for j := 0; j < 5; j++ {
@@ -39,7 +38,8 @@ func (b *Board) hasWon() bool {
 			return true
 		}
 	}
-	//check columns
+
+	// Check columns
 	for j := 0; j < 5; j++ {
 		win := true
 		for i := 0; i < 5; i++ {
@@ -52,6 +52,7 @@ func (b *Board) hasWon() bool {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -110,22 +111,29 @@ func main() {
 	if err != nil {
 		fmt.Println("Error opening input file:", err)
 		return
-
 	}
 	defer file.Close()
 	scanner := bufio.NewScanner(file)
 
 	numbers, boards := parseInput(scanner)
+	remainingBoards := len(boards)
 
 	for _, number := range numbers {
 		for i := range boards {
-			boards[i].mark(number)
-			if boards[i].hasWon() {
-				fmt.Println(boards[i].score(number))
-				return
+			if boards[i].won {
+				continue
 			}
 
+			boards[i].mark(number)
+			if boards[i].hasWon() {
+				boards[i].won = true
+				remainingBoards--
+
+				if remainingBoards == 0 {
+					fmt.Printf("Last winning board's score: %d\n", boards[i].score(number))
+					return
+				}
+			}
 		}
 	}
-
 }
